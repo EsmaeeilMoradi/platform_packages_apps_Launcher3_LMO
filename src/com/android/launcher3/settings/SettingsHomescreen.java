@@ -92,7 +92,7 @@ public class SettingsHomescreen extends CollapsingToolbarBaseActivity
                     getString(R.string.home_screen_settings_fragment_name));
             f.setArguments(args);
             // Display the fragment as the main content.
-            fm.beginTransaction().replace(com.android.settingslib.widget.R.id.content_frame, f).commit();
+            fm.beginTransaction().replace(com.android.settingslib.R.id.content_frame, f).commit();
         }
         LauncherPrefs.getPrefs(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
     }

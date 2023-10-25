@@ -24,4 +24,6 @@
 
     <!-- Hotseat QSB -->
     <dimen name="hotseat_qsb_excess_horizontal_margin">8dp</dimen>
+
+    <dimen name="max_depth_blur_radius">10dp</dimen>
 </resources>

@@ -59,7 +59,7 @@ import com.android.launcher3.util.DisplayController;
 
 import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity;
 
-import com.android.systemui.shared.system.BlurUtils;
+//import com.android.systemui.shared.system.BlurUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -113,7 +113,7 @@ public class SettingsMisc extends CollapsingToolbarBaseActivity
                     getPreferenceFragment());
             f.setArguments(args);
             // Display the fragment as the main content.
-            fm.beginTransaction().replace(com.android.settingslib.widget.R.id.content_frame, f).commit();
+            fm.beginTransaction().replace(com.android.settingslib.R.id.content_frame, f).commit();
         }
         LauncherPrefs.getPrefs(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
     }
@@ -287,7 +287,7 @@ public class SettingsMisc extends CollapsingToolbarBaseActivity
                     return updateDeveloperOption();
 
                 case Utilities.KEY_BLUR_DEPTH:
-                    return BlurUtils.supportsBlursOnWindows();
+                    return false;
                 case SUGGESTIONS_KEY:
                     // Show if Device Personalization Services is present.
                     return isDPSEnabled(getContext());
