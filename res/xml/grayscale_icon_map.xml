@@ -879,7 +879,7 @@
         drawable="@drawable/themed_icon_fx"
         package="nextapp.fx" />
     <icon
-        drawable="@drawable/themed_icon_GoogleClassroom"
+        drawable="@drawable/themed_icon_googleclassroom"
         package="com.google.android.apps.classroom" />
     <icon
         drawable="@drawable/themed_icon_hangouts"
