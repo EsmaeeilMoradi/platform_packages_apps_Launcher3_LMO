@@ -21,6 +21,10 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.protobuf'
 apply plugin: 'kotlin-android'
 
+def keystorePropertiesFile = file("keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
     compileSdkVersion 33
 
@@ -124,6 +128,14 @@ android {
             manifest.srcFile "quickstep/AndroidManifest.xml"
         }
     }
+    signingConfigs {
+        debug {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
 }
 
 allprojects {
@@ -151,6 +163,7 @@ dependencies {
     implementation "androidx.annotation:annotation:1.5.0"
     implementation 'androidx.slice:slice-core:1.0.0'
     implementation 'com.google.protobuf:protobuf-javalite:3.21.12'
+    implementation 'com.android.tools.build:aapt2:7.3.0-8691043'
 
     implementation "androidx.dynamicanimation:dynamicanimation:${ANDROID_X_VERSION}"
     implementation project(':iconloaderlib')
