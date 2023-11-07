@@ -19,10 +19,7 @@
 
     <include
         layout="@layout/intelligence_search_results_rv_layout"
-        android:layout_below="@id/all_apps_header"
-        android:visibility="visible"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:visibility="gone" />
 
     <include
         layout="@layout/all_apps_bottom_sheet_background"

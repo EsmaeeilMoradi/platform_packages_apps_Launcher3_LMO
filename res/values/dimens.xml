@@ -461,4 +461,12 @@
 <!-- For Themed icon support -->
     <dimen name="theme_icon_size">24dp</dimen>
 
+
+
+
+
+    <dimen name="lmo_radius">28dp</dimen>
+    <dimen name="lmo_radius_merge">5dp</dimen>
+    <dimen name="lmo_pref_horizontal_padding">16dp</dimen>
+
 </resources>

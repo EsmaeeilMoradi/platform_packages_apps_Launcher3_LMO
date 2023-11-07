@@ -57,6 +57,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.graphics.ColorUtils;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.launcher3.DeviceProfile;
@@ -70,6 +71,8 @@ import com.android.launcher3.Utilities;
 import com.android.launcher3.allapps.BaseAllAppsAdapter.AdapterItem;
 import com.android.launcher3.allapps.search.DefaultSearchAdapterProvider;
 import com.android.launcher3.allapps.search.SearchAdapterProvider;
+import com.android.launcher3.allapps.search.init.Contact;
+import com.android.launcher3.allapps.search.init.ContactsAdapter;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.keyboard.FocusedItemDecorator;
 import com.android.launcher3.model.StringCache;
@@ -137,6 +140,7 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
     protected FloatingHeaderView mHeader;
     protected View mBottomSheetBackground;
     protected RecyclerViewFastScroller mFastScroller;
+    protected View mSearchIntRecyclerView;
 
     /**
      * View that defines the search box. Result is rendered inside {@link #mSearchRecyclerView}.
@@ -231,12 +235,15 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
         mBottomSheetHandleArea = findViewById(R.id.bottom_sheet_handle_area);
         mSearchRecyclerView = findViewById(R.id.search_results_list_view);
         mFastScroller = findViewById(R.id.fast_scroller);
+         mSearchIntRecyclerView= findViewById(R.id.layout);
         mFastScroller.setPopupView(findViewById(R.id.fast_scroller_popup));
+
 
         // Add the search box above everything else.
         mSearchContainer = inflateSearchBox();
         addView(mSearchContainer);
         mSearchUiManager = (SearchUiManager) mSearchContainer;
+        testESM();
     }
 
     @Override
@@ -244,8 +251,11 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
         super.onFinishInflate();
         if (Utilities.showSearch(getContext())) {
             mSearchContainer.setVisibility(View.VISIBLE);
+            mSearchIntRecyclerView.setVisibility(View.VISIBLE);
         } else {
             mSearchContainer.setVisibility(View.GONE);
+            mSearchIntRecyclerView.setVisibility(View.GONE);
+
         }
 
         mAH.get(SEARCH).setup(mSearchRecyclerView,
@@ -1041,9 +1051,13 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
             getSearchRecyclerView().setVisibility(VISIBLE);
             getAppsRecyclerViewContainer().setVisibility(GONE);
             mHeader.setVisibility(GONE);
+            mSearchIntRecyclerView.setVisibility(VISIBLE);
+
         } else {
             getSearchRecyclerView().setVisibility(GONE);
             getAppsRecyclerViewContainer().setVisibility(VISIBLE);
+            mSearchIntRecyclerView.setVisibility(GONE);
+
             mHeader.setVisibility(VISIBLE);
         }
         if (mHeader.isSetUp()) {
@@ -1341,4 +1355,23 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
             return mType == SEARCH;
         }
     }
+
+    public void testESM(){
+        Contact[] myListData = new Contact[] {
+                new Contact("Email",true),
+                new Contact("Email",true),
+                new Contact("Email",true),
+
+        };
+
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rvContacts);
+        ContactsAdapter adapter = new ContactsAdapter(myListData);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
+    }
+
+
+
+
 }

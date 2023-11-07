@@ -136,6 +136,10 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
+
+    buildFeatures {
+        aidl = true
+    }
 }
 
 allprojects {

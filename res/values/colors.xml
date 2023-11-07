@@ -88,4 +88,15 @@
     <color name="preload_icon_background_color_dark">#40484D</color>
 
     <color name="work_turn_on_stroke">?android:attr/colorAccent</color>
+
+
+
+
+
+    <color name="lmo_pref_ripple">#1f000000</color>
+    <color name="lmo_pref_color">@android:color/system_neutral1_10</color>
+    <color name="lmo_pref_opaque">#33FFFFFF</color>
+    <color name="lmo_background1">@android:color/system_neutral1_50</color>
+    <color name="lmo_background2">@android:color/system_neutral1_100</color>
+    <color name="lmo_background3">@android:color/system_accent1_400</color>
 </resources>
