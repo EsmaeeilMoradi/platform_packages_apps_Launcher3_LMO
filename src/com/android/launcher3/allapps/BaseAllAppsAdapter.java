@@ -43,6 +43,9 @@ import com.android.launcher3.views.ActivityContext;
  *
  * @param <T> Type of context inflating all apps.
  */
+
+// inja ro barrasi kon
+
 public abstract class BaseAllAppsAdapter<T extends Context & ActivityContext> extends
         RecyclerView.Adapter<BaseAllAppsAdapter.ViewHolder> {
 

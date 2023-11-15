@@ -15,6 +15,7 @@
  */
 package com.android.launcher3.allapps;
 
+import static android.content.Context.BIND_AUTO_CREATE;
 import static com.android.launcher3.allapps.ActivityAllAppsContainerView.AdapterHolder.SEARCH;
 import static com.android.launcher3.logging.StatsLogManager.LauncherEvent.LAUNCHER_ALLAPPS_COUNT;
 import static com.android.launcher3.logging.StatsLogManager.LauncherEvent.LAUNCHER_ALLAPPS_TAP_ON_PERSONAL_TAB;
@@ -25,7 +26,10 @@ import static com.android.launcher3.util.ScrollableLayoutManager.PREDICTIVE_BACK
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Outline;
@@ -36,8 +40,10 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Parcelable;
 import android.os.Process;
+import android.os.RemoteException;
 import android.os.UserManager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -71,8 +77,10 @@ import com.android.launcher3.Utilities;
 import com.android.launcher3.allapps.BaseAllAppsAdapter.AdapterItem;
 import com.android.launcher3.allapps.search.DefaultSearchAdapterProvider;
 import com.android.launcher3.allapps.search.SearchAdapterProvider;
+import com.android.launcher3.allapps.search.init.AppSearchSettings;
 import com.android.launcher3.allapps.search.init.Contact;
 import com.android.launcher3.allapps.search.init.ContactsAdapter;
+import com.android.launcher3.allapps.search.init.SettingsAdapter;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.keyboard.FocusedItemDecorator;
 import com.android.launcher3.model.StringCache;
@@ -93,6 +101,9 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import com.android.internal.libremobileos.app.ParallelSpaceManager;
+import com.android.settings.intelligence.search.ISearchService;
+import com.android.settings.intelligence.search.ISearchServiceCallback;
+import com.android.settings.intelligence.search.SearchServiceResult;
 
 /**
  * All apps container view with search support for use in a dragging activity.
@@ -165,6 +176,16 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
     private int mTabsProtectionAlpha;
     @Nullable private AllAppsTransitionController mAllAppsTransitionController;
 
+
+
+
+    ISearchService searchService;
+//    Context context;
+    private final ArrayList<AppSearchSettings> elementSearchList = new ArrayList<>();
+
+
+
+
     public ActivityAllAppsContainerView(Context context) {
         this(context, null);
     }
@@ -219,6 +240,7 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
      *   onFinishInflate -> onPostCreate
      */
     protected void initContent() {
+
         mMainAdapterProvider = createMainAdapterProvider();
 
         mAH.set(AdapterHolder.MAIN, new AdapterHolder(AdapterHolder.MAIN,
@@ -243,7 +265,9 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
         mSearchContainer = inflateSearchBox();
         addView(mSearchContainer);
         mSearchUiManager = (SearchUiManager) mSearchContainer;
-        testESM();
+
+//        testESM("c");
+
     }
 
     @Override
@@ -257,6 +281,8 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
             mSearchIntRecyclerView.setVisibility(View.GONE);
 
         }
+
+        //inja bayad che kar konim
 
         mAH.get(SEARCH).setup(mSearchRecyclerView,
                 /* Filter out A-Z apps */ itemInfo -> false);
@@ -307,12 +333,18 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
      * Sets results list for search
      */
     public void setSearchResults(ArrayList<AdapterItem> results) {
+        Log.e("ESM", "setSearchResults: " );
+        testESM("c");
+
         getMainAdapterProvider().clearHighlightedItem();
         if (getSearchResultList().setSearchResults(results)) {
             getSearchRecyclerView().onSearchResultsChanged();
         }
         if (results != null) {
             animateToSearchState(true);
+            Log.e("ESM", "setSearchResults: " + results.get(0).itemInfo);
+
+
         }
     }
 
@@ -1356,22 +1388,90 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
         }
     }
 
-    public void testESM(){
+    public void testESM(String query){
         Contact[] myListData = new Contact[] {
                 new Contact("Email",true),
                 new Contact("Email",true),
                 new Contact("Email",true),
 
         };
+//        ArrayList<>
+
+//        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rvContacts);
+//        ContactsAdapter adapter = new ContactsAdapter(myListData);
+//        recyclerView.setHasFixedSize(true);
+//        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+//        recyclerView.setAdapter(adapter);
+
+        Intent intent = new Intent("SearchService");
+        intent.setPackage("com.android.settings.intelligence");
+        intent.setComponent(new ComponentName("com.android.settings.intelligence", "com.android.settings.intelligence.search.SearchService"));
+        getContext().bindService(intent, connectToService(query), BIND_AUTO_CREATE);
+
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rvContacts);
-        ContactsAdapter adapter = new ContactsAdapter(myListData);
+        SettingsAdapter adapter = new SettingsAdapter(elementSearchList);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
+
+
+
     }
 
 
+    private ServiceConnection connectToService(String query) {
+        ServiceConnection serviceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                Log.e("ServiceInt", "connected");
+                searchService = ISearchService.Stub.asInterface(iBinder);
+                try {
+//                actionSwitch.setEnabled(searchService.isIndexingComplete());
+                    searchService.startIndexing(new ISearchServiceCallback.Stub() {
+                        @Override
+                        public void onIndexingFinished() throws RemoteException {
+                            Log.e("ServiceInt", "finished");
+                            searchService.querySearch(this, query);
+                        }
+
+                        @Override
+                        public void onSearchResult(String query, List<SearchServiceResult> result) throws RemoteException {
+                            Log.e("ServiceInt", "finished resss");
+
+                            for (SearchServiceResult r : result) {
+                                boolean showSettingItem;
+                                if (result.indexOf(r) == 0) {
+                                    showSettingItem = true;
+                                } else {
+                                    showSettingItem = false;
+
+                                }
+
+
+                                elementSearchList.add(new AppSearchSettings(r.title, r.summary, r.intent, r.breadcrumbs, showSettingItem));
+                                Log.e("ServiceInt", r.title.toString());
+                                Log.e("ServiceInt", r.summary.toString() + "   $ ");
+                                Log.e("ServiceInt", r.intent.getData() + "   $intent ");
+                                Log.e("ServiceInt", r.breadcrumbs.size() + "   breadcrumbs ");
+
+                            }
+                        }
+                    });
+
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+            }
+        };
+
+        return serviceConnection;
+    }
 
 
 }

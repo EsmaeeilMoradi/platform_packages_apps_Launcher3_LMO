@@ -35,6 +35,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.R;
+import com.android.launcher3.allapps.ActivityAllAppsContainerView;
 import com.android.launcher3.allapps.BaseAllAppsAdapter.AdapterItem;
 import com.android.launcher3.allapps.search.init.AppSearchSettings;
 import com.android.launcher3.allapps.search.init.Contact;
@@ -91,22 +92,31 @@ public class DefaultAppSearchAlgorithm implements SearchAlgorithm<AdapterItem> {
     @Override
     public void doSearch(String query, SearchCallback<AdapterItem> callback) {
 
-        Intent intent = new Intent("SearchService");
-        intent.setPackage("com.android.settings.intelligence");
-        intent.setComponent(new ComponentName("com.android.settings.intelligence", "com.android.settings.intelligence.search.SearchService"));
-        context.bindService(intent, connectToService(query), BIND_AUTO_CREATE);
+//        Intent intent = new Intent("SearchService");
+//        intent.setPackage("com.android.settings.intelligence");
+//        intent.setComponent(new ComponentName("com.android.settings.intelligence", "com.android.settings.intelligence.search.SearchService"));
+//        context.bindService(intent, connectToService(query), BIND_AUTO_CREATE);
+//        Log.e("ServiceInt", "connected");
+
 
         mAppState.getModel().enqueueModelUpdateTask(new BaseModelUpdateTask() {
+
             @Override
             public void execute(@NonNull final LauncherAppState app,
                                 @NonNull final BgDataModel dataModel, @NonNull final AllAppsList apps) {
+                Log.e("ESM", "execute  ");
                 ArrayList<AdapterItem> result = getTitleMatchResult(apps.data, query);
+                Log.e("ESM", "result  "+result);
+
                 if (mAddNoResultsMessage && result.isEmpty()) {
                     result.add(getEmptyMessageAdapterItem(query));
                 }
                 mResultHandler.post(() -> callback.onSearchResult(query, result));
             }
+
         });
+
+
     }
 
     private static AdapterItem getEmptyMessageAdapterItem(String query) {
@@ -117,6 +127,8 @@ public class DefaultAppSearchAlgorithm implements SearchAlgorithm<AdapterItem> {
         item.itemInfo = placeHolder;
         return item;
     }
+
+
 
     /**
      * Filters {@link AppInfo}s matching specified query
@@ -194,5 +206,25 @@ public class DefaultAppSearchAlgorithm implements SearchAlgorithm<AdapterItem> {
         };
 
         return serviceConnection;
+    }
+
+
+    public void testESM() {
+        Contact[] myListData = new Contact[]{
+                new Contact("Email", true),
+                new Contact("Email", true),
+                new Contact("Email", true),
+
+        };
+
+        ActivityAllAppsContainerView activityAllAppsContainerView = new ActivityAllAppsContainerView(context.getApplicationContext());
+
+//        RecyclerView recyclerView = (RecyclerView) context.getActivityToken.(R.id.rvContacts);
+        RecyclerView recyclerView = (RecyclerView) activityAllAppsContainerView.findViewById(R.id.rvContacts);
+        ContactsAdapter adapter = new ContactsAdapter(myListData);
+        recyclerView.setHasFixedSize(true);
+//        adapter.notifyDataSetChanged();
+        recyclerView.setLayoutManager(new LinearLayoutManager(context.getApplicationContext()));
+        recyclerView.setAdapter(adapter);
     }
 }

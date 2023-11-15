@@ -1,43 +1,47 @@
 package com.android.launcher3.allapps.search.init;
 
-import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.launcher3.R;
 
-// Create the basic adapter extending from RecyclerView.Adapter
-// Note that we specify the custom ViewHolder which gives us access to our views
-public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHolder>{
-    private Contact[] listdata;
+import java.util.ArrayList;
+import java.util.List;
+
+public class SettingsAdapter  extends RecyclerView.Adapter<SettingsAdapter.ViewHolder>{
+    private List<AppSearchSettings> listdata;
 
     // RecyclerView recyclerView;
-    public ContactsAdapter(Contact[] listdata) {
+    public SettingsAdapter(List<AppSearchSettings> listdata) {
         this.listdata = listdata;
     }
 
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SettingsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View listItem= layoutInflater.inflate(R.layout.item_contact, parent, false);
-        ViewHolder viewHolder = new ViewHolder(listItem);
+        SettingsAdapter.ViewHolder viewHolder = new SettingsAdapter.ViewHolder(listItem);
         return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        final Contact myListData = listdata[position];
-        holder.textView.setText(listdata[position].getName());
+    public void onBindViewHolder(SettingsAdapter.ViewHolder holder, int position) {
+        final AppSearchSettings myListData = listdata.get(position);
+        if (listdata.get(position).getTitle() != null) {
+
+            holder.textView.setText(listdata.get(position).getTitle());
+        }
+        if (listdata.get(position).getBreadcrumbs() != null && (listdata.get(position).getBreadcrumbs().size()!=0)) {
+
+            holder.textView2.setText(listdata.get(position).getBreadcrumbs().get(0));
+        }
 //        holder.relativeLayout.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -49,16 +53,18 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
 
     @Override
     public int getItemCount() {
-        return listdata.length;
+        return listdata.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView imageView;
         public TextView textView;
+        public TextView textView2;
         public RelativeLayout relativeLayout;
         public ViewHolder(View itemView) {
             super(itemView);
             this.textView = (TextView) itemView.findViewById(R.id.title);
+            this.textView2 = (TextView) itemView.findViewById(R.id.summary);
 //            relativeLayout = (RelativeLayout)itemView.findViewById(R.id.relativeLayout);
         }
     }
